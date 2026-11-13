@@ -1,4 +1,5 @@
 import os
+import re
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -26,13 +27,23 @@ def check():
     data = request.get_json(silent=True) or {}
     if "hash" not in data:
         return jsonify({"error": "brak pola 'hash'"}), 400
+    
+    
+    h = str(data["hash"]).lower()  
+    
+    
+    if not re.fullmatch(r"[0-9a-f]{40}", h):
+        return{"error": "Invalid hash"}, 400
+    
+    
 
-    h = str(data["hash"]).lower()
-    print(f"check: hash={h}", flush=True)
+    
+    print(f"check: hash={h[:5]}...", flush=True)
 
     # TODO 1: sprawdź, czy h należy do zbioru KNOWN_HASHES (wynik zapisz w zmiennej found)
+    found = h in KNOWN_HASHES
     # TODO 2: zwróć JSON {"found": found}
-
+    return jsonify({"found":found})
 
 if __name__ == "__main__":
     # 0.0.0.0 = nasłuchuj na wszystkich interfejsach kontenera, nie tylko na jego localhost
